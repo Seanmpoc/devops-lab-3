@@ -4,7 +4,7 @@ Vagrant.configure("2") do |config|
 	# Use Arch Linux as the base VM
  	config.vm.box = "archlinux/archlinux"
   
-  	config.vm.network "forwarded_port", guest: 5000, host: 5000
+  	config.vm.network "forwarded_port", guest: 5000, host: 8080
   
   	config.vm.provision "shell", inline: <<-SHELL
     		sudo pacman -Syu --noconfirm git nano vim python python-virtualenv python-pip
@@ -17,15 +17,14 @@ Vagrant.configure("2") do |config|
     
     		pip install Flask
     
-    		cat <<EOF > hello.py
-from flask import Flask
-app = Flask(__name__)
-@app.route('/')
-def hello():
-    	return '<p>Hello, World!</p>'
-EOF
+    	SHELL
+
+	config.vm.provision "file", source: "hello.py", destination: "/home/vagrant/hello.py"
+
+	config.vm.provision "shell", inline: <<-SHELL
+		source /home/vagrant/flask_venv/bin/activate
     
-    		flask --app hello run --host=0.0.0.0 &
+    		flask --app home/vagrant/hello run --host=0.0.0.0 &
   	SHELL
 end
 
